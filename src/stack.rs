@@ -1,5 +1,5 @@
-pub struct Stack<T> {
-    backend: Vec<T>,
+pub struct Stack<T: Default + Copy, const N: usize> {
+    backend: [T; N],
     top: usize,
     size: usize,
 }
@@ -10,12 +10,13 @@ pub enum StackError {
     Underflow,
 }
 
-impl<T> Stack<T> {
+impl<T: Default + Copy, const N: usize> Stack<T, N> {
     pub fn new() -> Self {
+        let v: T = Default::default();
         Self {
-            backend: vec![],
+            backend: [v; N],
             top: 0,
-            size: 2048,
+            size: N,
         }
     }
 
@@ -23,7 +24,7 @@ impl<T> Stack<T> {
         if self.top == self.size - 1 {
             return Err((Some(element), StackError::Overflow));
         }
-        self.backend.push(element);
+        self.backend[self.top] = element;
         self.top += 1;
         Ok(())
     }
@@ -32,9 +33,9 @@ impl<T> Stack<T> {
         if self.top == 0 {
             return Err(StackError::Underflow);
         }
-        let v = self.backend.pop();
+        let v = self.backend[self.top - 1];
         self.top -= 1;
-        Ok(v.unwrap())
+        Ok(v)
     }
 
     pub fn peek(&self) -> Option<&T> {
@@ -52,14 +53,14 @@ mod tests {
 
     #[test]
     fn test_push_is_ok() {
-        let mut stack = Stack::new();
+        let mut stack: Stack<i32, 1024> = Stack::new();
         let r = stack.push(1);
         assert_eq!(r.is_ok(), true);
     }
 
     #[test]
     fn test_pop_is_ok() {
-        let mut stack = Stack::new();
+        let mut stack: Stack<i32, 1024> = Stack::new();
         let r = stack.push(1);
         assert_eq!(r.is_ok(), true);
         let r = stack.pop();
@@ -69,7 +70,7 @@ mod tests {
 
     #[test]
     fn test_peek_is_ok() {
-        let mut stack = Stack::new();
+        let mut stack: Stack<i32, 1024> = Stack::new();
         stack.push(1).unwrap();
         stack.push(2).unwrap();
         let r = stack.peek();
@@ -78,20 +79,20 @@ mod tests {
 
     #[test]
     fn test_peek_on_empty_stack_is_none() {
-        let stack: Stack<i32> = Stack::new();
+        let stack: Stack<i32, 1024> = Stack::new();
         assert_eq!(stack.peek(), None);
     }
 
     #[test]
     fn test_pop_empty_stack_results_underflow() {
-        let mut stack: Stack<i32> = Stack::new();
+        let mut stack: Stack<i32, 1024> = Stack::new();
         let r = stack.pop();
         assert_eq!(r.expect_err("expecting underflow"), StackError::Underflow);
     }
 
     #[test]
     fn test_push_over_size_results_in_overflow() {
-        let mut stack: Stack<i32> = Stack::new();
+        let mut stack: Stack<i32, 2048> = Stack::new();
         for i in 0..=2048 {
             let r = stack.push(i);
             if i >= 2047 {
