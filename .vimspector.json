@@ -1,0 +1,12 @@
+{
+  "configurations": {
+    "Debug": {
+      "adapter": "CodeLLDB",
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/target/debug/deps/dsa-a57e332d773ffa83",
+	"args": ["--test"]
+      }
+    }
+  }
+}
