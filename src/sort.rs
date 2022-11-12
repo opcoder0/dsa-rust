@@ -29,21 +29,49 @@ pub fn selection<T: Copy + Ord + PartialOrd>(vec: &mut Vec<T>) {
     }
 }
 
+pub fn insertion<T: Copy + Ord + PartialOrd>(vec: &mut Vec<T>) {
+    let mut gap: usize;
+    let mut gap_v: T;
+
+    for i in 1..vec.len() {
+        gap = i;
+        gap_v = vec[gap];
+        let mut j = gap - 1;
+        while vec[j] > gap_v {
+            vec[gap] = vec[j];
+            gap = j;
+            if j == 0 {
+                break;
+            } else {
+                j -= 1;
+            }
+        }
+        vec[gap] = gap_v;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_bubble_ok() {
+    fn bubble_sort_ok() {
         let mut v = vec![5, 3, 4, 1, 2];
         bubble(&mut v);
         assert_eq!(v, [1, 2, 3, 4, 5]);
     }
 
     #[test]
-    fn test_selection_ok() {
+    fn selection_sort_ok() {
         let mut v = vec![5, 3, 4, 1, 2];
         selection(&mut v);
+        assert_eq!(v, [1, 2, 3, 4, 5]);
+    }
+
+    #[test]
+    fn insertion_sort_ok() {
+        let mut v = vec![5, 3, 4, 1, 2];
+        insertion(&mut v);
         assert_eq!(v, [1, 2, 3, 4, 5]);
     }
 }
